@@ -12,10 +12,10 @@ type TabInfo = {
   windows: number[];
 };
 
-type LeafLayout = ['leaf', number];
-type RowLayout = ['row', WindowLayout[]];
-type ColLayout = ['col', WindowLayout[]];
-type WindowLayout = LeafLayout | RowLayout | ColLayout;
+export type LeafLayout = ['leaf', number];
+export type RowLayout = ['row', WindowLayout[]];
+export type ColLayout = ['col', WindowLayout[]];
+export type WindowLayout = LeafLayout | RowLayout | ColLayout;
 
 async function getBufName(denps: Denops, tabnr: number): Promise<string[]> {
   const winlayout = await fn.winlayout(denps, tabnr) as WindowLayout;
