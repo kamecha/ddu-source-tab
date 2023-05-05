@@ -59,10 +59,11 @@ export class Source extends BaseSource<Params> {
         const tabinfo = ensureArray<TabInfo>(await fn.gettabinfo(args.denops));
         const items: Item<ActionData>[] = [];
         for (const tab of tabinfo) {
-          const tabName = await getTabName(args.denops, tab.tabnr);
+          // word内にtabName([Float])とかが入るとeditがうまくいかない
+          // const tabName = await getTabName(args.denops, tab.tabnr);
           const bufnames = await getBufName(args.denops, tab.tabnr);
           items.push({
-            word: `tab ${tab.tabnr}|${tabName}|${bufnames.join(' ')}`,
+            word: `tab:${tab.tabnr}:${bufnames.join(' ')}`,
             action: {
               tabnr: tab.tabnr,
             }
