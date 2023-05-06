@@ -3,6 +3,7 @@ import { ActionFlags, Actions, DduItem, PreviewContext, Previewer } from "https:
 import { Denops } from "https://deno.land/x/denops_std@v3.9.0/mod.ts";
 import { WindowLayout, LeafLayout } from "../@ddu-sources/tab.ts";
 import { fn } from "https://deno.land/x/ddu_vim@v1.13.0/deps.ts";
+import { ensureNumber, ensureString } from "https://deno.land/x/unknownutil@v2.1.0/mod.ts";
 
 export interface ActionData {
   tabnr: number;
@@ -45,15 +46,15 @@ export class Kind extends BaseKind<Params> {
     const winLayout = await fn.winlayout(args.denops, action.tabnr) as WindowLayout;
     return {
       kind: "nofile",
-      contents: this.winLayoutPreview(contents, winLayout)
+      contents: await this.winLayoutPreview(args.denops, contents, winLayout)
     }
   }
-  winLayoutPreview(contents: string[], winLayout: WindowLayout): string[] {
+  async winLayoutPreview(denops: Denops, contents: string[], winLayout: WindowLayout): Promise<string[]> {
     if (contents.length === 0) {
       return [];
     }
     const winLayoutPreview: string[] = contents;
-    const leafLayout = (x: number, y: number, width: number, height: number) => {
+    const leafLayout = (x: number, y: number, width: number, height: number, title: string) => {
       // validation
       if (y < 0 || y >= contents.length || x < 0 || x >= contents[0].length) {
         return;
@@ -70,11 +71,23 @@ export class Kind extends BaseKind<Params> {
         } else if ( i === limitHeight - 1 ) {
           winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "└" + "─".repeat(width - 2) + "┘" + winLayoutPreview[i].slice( x + width );
         } else {
+          // 中央にtitleを表示
+          if ( i === Math.floor( (y + limitHeight) / 2 ) ) {
+            // titleがwidthを越える場合は後ろだけを表示
+            if ( title.length > width - 2 ) {
+              winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "│" + title.slice(-(width - 2)) + "│" + winLayoutPreview[i].slice( x + width );
+            } else {
+              // titleを中央に表示
+              const title_x = Math.floor( (width - title.length) / 2 );
+              winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "│" + " ".repeat(title_x) + title + " ".repeat(width - 2 - title_x - title.length) + "│" + winLayoutPreview[i].slice( x + width );
+            }
+            continue;
+          }
           winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "│" + " ".repeat(width - 2) + "│" + winLayoutPreview[i].slice( x + width );
         }
       }
     }
-    const winLayoutPreviewRec = (
+    const winLayoutPreviewRec = async (
       winlayout: WindowLayout,
       i: number,
       j: number,
@@ -82,24 +95,26 @@ export class Kind extends BaseKind<Params> {
       height: number,
     ) => {
       if (winlayout[0] === "leaf") {
-        leafLayout(j, i, width, height);
+        const bufName = ensureNumber(await fn.winbufnr(denops, winlayout[1]));
+        const title = ensureString( await fn.bufname(denops, bufName) );
+        leafLayout(j, i, width, height, title);
       }
       if (winlayout[0] === "col") {
         const height = Math.floor( contents.length / winlayout[1].length );
         for (let k = 0; k < winlayout[1].length; k++) {
           const next_i = i + height * k;
-          winLayoutPreviewRec(winlayout[1][k], next_i, j, width, height);
+          await winLayoutPreviewRec(winlayout[1][k], next_i, j, width, height);
         }
       }
       if (winlayout[0] === "row") {
         const width = Math.floor( contents[0].length / winlayout[1].length );
         for (let k = 0; k < winlayout[1].length; k++) {
           const next_j = j + width * k;
-          winLayoutPreviewRec(winlayout[1][k], i, next_j, width, height);
+          await winLayoutPreviewRec(winlayout[1][k], i, next_j, width, height);
         }
       }
     }
-    winLayoutPreviewRec(winLayout, 0, 0, contents[0].length, contents.length);
+    await winLayoutPreviewRec(winLayout, 0, 0, contents[0].length, contents.length);
     return winLayoutPreview;
   }
 }
