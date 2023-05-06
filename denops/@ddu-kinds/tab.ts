@@ -100,17 +100,17 @@ export class Kind extends BaseKind<Params> {
         leafLayout(j, i, width, height, title);
       }
       if (winlayout[0] === "col") {
-        const height = Math.floor( contents.length / winlayout[1].length );
+        const next_height = Math.floor( height / winlayout[1].length );
         for (let k = 0; k < winlayout[1].length; k++) {
-          const next_i = i + height * k;
-          await winLayoutPreviewRec(winlayout[1][k], next_i, j, width, height);
+          const next_i = i + next_height * k;
+          await winLayoutPreviewRec(winlayout[1][k], next_i, j, width, next_height);
         }
       }
       if (winlayout[0] === "row") {
-        const width = Math.floor( contents[0].length / winlayout[1].length );
+        const next_width = Math.floor( width / winlayout[1].length );
         for (let k = 0; k < winlayout[1].length; k++) {
-          const next_j = j + width * k;
-          await winLayoutPreviewRec(winlayout[1][k], i, next_j, width, height);
+          const next_j = j + next_width * k;
+          await winLayoutPreviewRec(winlayout[1][k], i, next_j, next_width, height);
         }
       }
     }
