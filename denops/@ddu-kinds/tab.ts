@@ -54,39 +54,6 @@ export class Kind extends BaseKind<Params> {
       return [];
     }
     const winLayoutPreview: string[] = contents;
-    const leafLayout = (x: number, y: number, width: number, height: number, title: string) => {
-      // validation
-      if (y < 0 || y >= contents.length || x < 0 || x >= contents[0].length) {
-        return;
-      }
-      if (width < 2 ||  height < 2) {
-        return;
-      }
-      // draw
-      const limitHeight = Math.min(y + height, contents.length - 1);
-      // const limitWidth = Math.min(x + width, contents[0].length - 1);
-      for (let i = y; i < limitHeight; i++) {
-        if ( i === y ) {
-          winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "┌" + "─".repeat(width - 2) + "┐" + winLayoutPreview[i].slice( x + width );
-        } else if ( i === limitHeight - 1 ) {
-          winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "└" + "─".repeat(width - 2) + "┘" + winLayoutPreview[i].slice( x + width );
-        } else {
-          // 中央にtitleを表示
-          if ( i === Math.floor( (y + limitHeight) / 2 ) ) {
-            // titleがwidthを越える場合は後ろだけを表示
-            if ( title.length > width - 2 ) {
-              winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "│" + title.slice(-(width - 2)) + "│" + winLayoutPreview[i].slice( x + width );
-            } else {
-              // titleを中央に表示
-              const title_x = Math.floor( (width - 2 - title.length) / 2 );
-              winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "│" + " ".repeat(title_x) + title + " ".repeat(width - 2- title.length - title_x) + "│" + winLayoutPreview[i].slice( x + width );
-            }
-            continue;
-          }
-          winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "│" + " ".repeat(width - 2) + "│" + winLayoutPreview[i].slice( x + width );
-        }
-      }
-    }
     const winLayoutPreviewRec = async (
       winlayout: WindowLayout,
       i: number,
@@ -97,7 +64,7 @@ export class Kind extends BaseKind<Params> {
       if (winlayout[0] === "leaf") {
         const bufName = ensureNumber(await fn.winbufnr(denops, winlayout[1]));
         const title = ensureString( await fn.bufname(denops, bufName) );
-        leafLayout(j, i, width, height, title);
+        this.leafLayout(j, i, width, height, title, winLayoutPreview);
       }
       if (winlayout[0] === "col") {
         const next_height = Math.floor( height / winlayout[1].length );
@@ -116,5 +83,38 @@ export class Kind extends BaseKind<Params> {
     }
     await winLayoutPreviewRec(winLayout, 0, 0, contents[0].length, contents.length);
     return winLayoutPreview;
+  }
+  leafLayout(x: number, y: number, width: number, height: number, title: string, contents: string[]) {
+    // validation
+    if (y < 0 || y >= contents.length || x < 0 || x >= contents[0].length) {
+      return;
+    }
+    if (width < 2 ||  height < 2) {
+      return;
+    }
+    // draw
+    const limitHeight = Math.min(y + height, contents.length - 1);
+    // const limitWidth = Math.min(x + width, contents[0].length - 1);
+    for (let i = y; i < limitHeight; i++) {
+      if ( i === y ) {
+        contents[i] = contents[i].slice(0, x) + "┌" + "─".repeat(width - 2) + "┐" + contents[i].slice( x + width );
+      } else if ( i === limitHeight - 1 ) {
+        contents[i] = contents[i].slice(0, x) + "└" + "─".repeat(width - 2) + "┘" + contents[i].slice( x + width );
+      } else {
+        // 中央にtitleを表示
+        if ( i === Math.floor( (y + limitHeight) / 2 ) ) {
+          // titleがwidthを越える場合は後ろだけを表示
+          if ( title.length > width - 2 ) {
+            contents[i] = contents[i].slice(0, x) + "│" + title.slice(-(width - 2)) + "│" + contents[i].slice( x + width );
+          } else {
+            // titleを中央に表示
+            const title_x = Math.floor( (width - 2 - title.length) / 2 );
+            contents[i] = contents[i].slice(0, x) + "│" + " ".repeat(title_x) + title + " ".repeat(width - 2- title.length - title_x) + "│" + contents[i].slice( x + width );
+          }
+          continue;
+        }
+        contents[i] = contents[i].slice(0, x) + "│" + " ".repeat(width - 2) + "│" + contents[i].slice( x + width );
+      }
+    }
   }
 }
