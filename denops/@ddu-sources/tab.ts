@@ -2,7 +2,7 @@ import { BaseSource, Item } from "https://deno.land/x/ddu_vim@v2.5.0/types.ts";
 import { ActionData } from "../@ddu-kinds/tab.ts";
 import { Denops } from "https://deno.land/x/ddu_vim@v2.5.0/deps.ts";
 import * as fn from "https://deno.land/x/denops_std@v4.0.0/function/mod.ts";
-import { ensureArray, ensureNumber, ensureObject, ensureString } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
+import { ensureArray, ensureNumber, ensureString } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
 
 type Params = Record<never, never>;
 

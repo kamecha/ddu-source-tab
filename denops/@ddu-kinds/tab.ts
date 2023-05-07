@@ -1,7 +1,7 @@
 import { BaseKind } from "https://deno.land/x/ddu_vim@v2.5.0/base/kind.ts";
 import { ActionFlags, Actions, DduItem, PreviewContext, Previewer } from "https://deno.land/x/ddu_vim@v2.5.0/types.ts";
 import { Denops } from "https://deno.land/x/denops_std@v3.9.0/mod.ts";
-import { WindowLayout, LeafLayout } from "../@ddu-sources/tab.ts";
+import { WindowLayout } from "../@ddu-sources/tab.ts";
 import { fn } from "https://deno.land/x/ddu_vim@v1.13.0/deps.ts";
 import { ensureNumber, ensureString } from "https://deno.land/x/unknownutil@v2.1.0/mod.ts";
 
