@@ -59,7 +59,7 @@ export class Kind extends BaseKind<Params> {
       if (y < 0 || y >= contents.length || x < 0 || x >= contents[0].length) {
         return;
       }
-      if (width <= 0 ||  height <= 0) {
+      if (width < 2 ||  height < 2) {
         return;
       }
       // draw
@@ -78,8 +78,8 @@ export class Kind extends BaseKind<Params> {
               winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "│" + title.slice(-(width - 2)) + "│" + winLayoutPreview[i].slice( x + width );
             } else {
               // titleを中央に表示
-              const title_x = Math.floor( (width - title.length) / 2 );
-              winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "│" + " ".repeat(title_x) + title + " ".repeat(width - 2 - title_x - title.length) + "│" + winLayoutPreview[i].slice( x + width );
+              const title_x = Math.floor( (width - 2 - title.length) / 2 );
+              winLayoutPreview[i] = winLayoutPreview[i].slice(0, x) + "│" + " ".repeat(title_x) + title + " ".repeat(width - 2- title.length - title_x) + "│" + winLayoutPreview[i].slice( x + width );
             }
             continue;
           }
