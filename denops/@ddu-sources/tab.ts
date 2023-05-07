@@ -86,7 +86,7 @@ export class Source extends BaseSource<Params> {
 
   params(): Params {
     return {
-      format: "tab|%n|%T|%w"
+      format: "tab:%n:%w"
     };
   }
 }
