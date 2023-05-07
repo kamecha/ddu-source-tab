@@ -60,10 +60,10 @@ export class Source extends BaseSource<Params> {
         const items: Item<ActionData>[] = [];
         for (const tab of tabinfo) {
           // word内にtabName([Float])とかが入るとeditがうまくいかない
-          // const tabName = await getTabName(args.denops, tab.tabnr);
+          const tabName = await getTabName(args.denops, tab.tabnr);
           const bufnames = await getBufName(args.denops, tab.tabnr);
           items.push({
-            word: `tab:${tab.tabnr}:${bufnames.join(' ')}`,
+            word: `tab|${tab.tabnr}|${tabName}|${bufnames.join(' ')}`,
             action: {
               tabnr: tab.tabnr,
             }
