@@ -2,6 +2,8 @@
 
 tab source for ddu.vim
 
+go to selected tab
+
 # Required
 
 ## denops.vim
