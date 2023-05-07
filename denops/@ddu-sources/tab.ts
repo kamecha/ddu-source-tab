@@ -4,7 +4,9 @@ import { Denops } from "https://deno.land/x/ddu_vim@v2.5.0/deps.ts";
 import * as fn from "https://deno.land/x/denops_std@v4.0.0/function/mod.ts";
 import { ensureArray, ensureNumber, ensureString } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
 
-type Params = Record<never, never>;
+type Params = {
+  format: string;
+}
 
 type TabInfo = {
   tabnr: number;
@@ -53,6 +55,7 @@ export class Source extends BaseSource<Params> {
 
   gather(args: {
     denops: Denops;
+    sourceParams: Params;
   }): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
@@ -62,8 +65,14 @@ export class Source extends BaseSource<Params> {
           // word内にtabName([Float])とかが入るとeditがうまくいかない
           const tabName = await getTabName(args.denops, tab.tabnr);
           const bufnames = await getBufName(args.denops, tab.tabnr);
+          const regexp = new RegExp('(\s|\t|\n|\v)', 'g');
+          const text: string = args.sourceParams.format
+            .replaceAll(regexp, ' ')
+            .replaceAll('%n', tab.tabnr.toString())
+            .replaceAll('%T', tabName)
+            .replaceAll('%w', bufnames.join(' '));
           items.push({
-            word: `tab|${tab.tabnr}|${tabName}|${bufnames.join(' ')}`,
+            word: text,
             action: {
               tabnr: tab.tabnr,
             }
@@ -76,6 +85,8 @@ export class Source extends BaseSource<Params> {
   }
 
   params(): Params {
-    return {};
+    return {
+      format: "tab|%n|%T|%w"
+    };
   }
 }
