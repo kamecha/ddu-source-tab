@@ -40,6 +40,24 @@ EXAMPLES				*ddu-source-tab-examples*
 <
 
 ==============================================================================
+PREVIEW PARAMS					*ddu-kind-tab-preview-params*
+
+				*ddu-kind-tab-preview-param-border*
+border	(string[])
+		Style of window layout border.
+		The array will specifify the eight chars
+		building up the border in a clockwise fashion
+		starting with the top-left corner.
+		As an example, the rounded box style could be specified as
+		[ "╭", "─", "╮", "─", "╯", "─", "╰", "─" ].
+		If the number of chars are less than eight, they will be
+		repeated.Thus an ASCII border could be specified as 
+		[ "/", "-", "\\", "|" ], or all chars the same as [ "x" ].
+
+		Default:
+		["┌", "─", "┐", "│", "┘", "─", "└", "│"]
+
+==============================================================================
 PARAMS					*ddu-source-tab-params*
 
 				*ddu-source-tab-param-format*
@@ -52,6 +70,29 @@ format 		(string)
 		"%w":windows related buffer name in each tab
 
 		Default: "tab:%n:%w"
+
+==============================================================================
+FREQUENTLY ASKED QUESTIONS (FAQ)			*ddu-source-tab-faq*
+
+Q: How to setting the window layout border ?
+
+A: preview param is passed via action. see |ddu-ui-ff-action-preview|.
+   So the one of the settings will be bellow.
+
+>
+    call ddu#start({
+	   \ 'ui': 'ff',
+	   \ 'uiParams': {
+	   \     'ff': {
+	   \         'autoAction': { 
+	   \             'name': 'preview',
+	   \             'params': { 'border': ['+', '-', '+', '\|'] }
+	   \         }
+	   \     },
+	   \ },
+	   \ 'sources': [{'name': 'tab'}]
+	   \ })
+<
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
