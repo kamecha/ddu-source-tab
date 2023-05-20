@@ -47,7 +47,12 @@ EOF
 */
 async function getTabName(denops: Denops, tabnr: number): Promise<string> {
   const tabName = await denops.eval(`luaeval('require("tabby.tab").get_name(${tabnr})')`);
-  return ensureString(tabName);
+  try {
+    return ensureString(tabName);
+  } catch (e) {
+    console.log(e);
+    return '';
+  }
 }
 
 export class Source extends BaseSource<Params> {
