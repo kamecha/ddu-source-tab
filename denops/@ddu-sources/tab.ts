@@ -24,8 +24,8 @@ async function getBufName(denps: Denops, tabnr: number): Promise<string[]> {
   const bufnames: string[] = [];
   const getBufName = async (d: Denops, layout: WindowLayout) => {
     if (layout[0] === 'leaf') {
-      const winnr = layout[1];
-      const bufNum = ensureNumber( await fn.winbufnr(d, winnr) );
+      const winId = layout[1];
+      const bufNum = ensureNumber( await fn.winbufnr(d, winId) );
       const bufName = ensureString( await fn.bufname(d, bufNum) );
       bufnames.push(bufName);
     } else if (layout[0] === 'row' || layout[0] === 'col') {
