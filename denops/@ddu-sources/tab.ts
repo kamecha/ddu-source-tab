@@ -50,6 +50,16 @@ print(tab.get_name(1))
 EOF
 */
 async function getTabName(denops: Denops, tabnr: number): Promise<string> {
+  if (
+    !(
+      await fn.has(denops, "nvim") &&
+      await denops.eval(
+        `luaeval('type(select(2, pcall(require, "tabby")))') == "table"`,
+      )
+    )
+  ) {
+    return "";
+  }
   const tabName = await denops.eval(
     `luaeval('require("tabby.tab").get_name(${tabnr})')`,
   );
