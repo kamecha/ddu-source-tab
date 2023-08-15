@@ -61,8 +61,12 @@ async function getTabName(denops: Denops, tabnr: number): Promise<string> {
     return "";
   }
   try {
-    const tabName = await denops.eval(
-      `luaeval('require("tabby.tab").get_name(${tabnr})')`,
+    const tabPages = ensureArray<number>(
+      await denops.call("ddu#source#tab#get_tabpages"),
+    );
+    const tabName = await denops.call(
+      "ddu#source#tab#get_tab_name",
+      tabPages[tabnr - 1],
     );
     return ensureString(tabName);
   } catch (e) {
