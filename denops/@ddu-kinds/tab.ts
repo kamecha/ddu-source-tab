@@ -30,6 +30,19 @@ export class Kind extends BaseKind<Params> {
       }
       return ActionFlags.None;
     },
+    close: async (args: {
+      denops: Denops;
+      kindParams: Params;
+      items: DduItem[];
+    }) => {
+      for (const item of args.items) {
+        if (item.action) {
+          const action = item.action as ActionData;
+          await args.denops.cmd(`tabclose ${action.tabnr}`);
+        }
+      }
+      return ActionFlags.None;
+    },
   };
   params(): Params {
     return {};
