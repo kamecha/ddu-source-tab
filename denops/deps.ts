@@ -3,6 +3,7 @@ export type { Denops } from "https://deno.land/x/ddu_vim@v2.5.0/deps.ts";
 export {
   ActionFlags,
   BaseSource,
+  BaseKind,
 } from "https://deno.land/x/ddu_vim@v2.5.0/types.ts";
 export type {
   Actions,
@@ -11,7 +12,6 @@ export type {
   PreviewContext,
   Previewer,
 } from "https://deno.land/x/ddu_vim@v2.5.0/types.ts";
-export { BaseKind } from "https://deno.land/x/ddu_vim@v2.5.0/base/kind.ts";
 export {
   ensureArray,
   ensureNumber,
