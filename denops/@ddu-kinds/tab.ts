@@ -51,7 +51,12 @@ export class Kind extends BaseKind<Params> {
       for (const item of args.items) {
         if (item.action) {
           const action = ensure(item.action, isActionData);
-          await args.denops.cmd(`tabnext ${action.tabnr}`);
+          if (isTabInfo(action)) {
+            await args.denops.cmd(`tabnext ${action.tabnr}`);
+          }
+          if (isWindowInfo(action)) {
+            await fn.win_gotoid(args.denops, action.winid);
+          }
         }
       }
       return ActionFlags.None;
@@ -64,7 +69,12 @@ export class Kind extends BaseKind<Params> {
       for (const item of args.items) {
         if (item.action) {
           const action = ensure(item.action, isActionData);
-          await args.denops.cmd(`tabclose ${action.tabnr}`);
+          if (isTabInfo(action)) {
+            await args.denops.cmd(`tabclose ${action.tabnr}`);
+          }
+          if (isWindowInfo(action)) {
+            await fn.win_execute(args.denops, action.winid, "close");
+          }
         }
       }
       return ActionFlags.None;
