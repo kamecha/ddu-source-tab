@@ -37,6 +37,25 @@ export type WindowInfo = {
   winrow: number;
 };
 
+export const isWindowInfo: Predicate<WindowInfo> = is.ObjectOf({
+  botline: is.Number,
+  bufnr: is.Number,
+  height: is.Number,
+  loclist: is.Number,
+  quickfix: is.Number,
+  terminal: is.Number,
+  tabnr: is.Number,
+  topline: is.Number,
+  variables: is.RecordOf(is.Unknown),
+  width: is.Number,
+  winbar: is.Number,
+  wincol: is.Number,
+  textoff: is.Number,
+  winid: is.Number,
+  winnr: is.Number,
+  winrow: is.Number,
+});
+
 async function getBufName(denops: Denops, tabinfo: TabInfo): Promise<string[]> {
   const bufnames: string[] = [];
   for (const winid of tabinfo.windows) {

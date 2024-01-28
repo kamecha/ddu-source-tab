@@ -1,4 +1,9 @@
-import { TabInfo, WindowInfo } from "../@ddu-sources/tab.ts";
+import {
+  isTabInfo,
+  isWindowInfo,
+  TabInfo,
+  WindowInfo,
+} from "../@ddu-sources/tab.ts";
 import {
   ActionFlags,
   Actions,
@@ -15,6 +20,11 @@ import {
 } from "../deps.ts";
 
 export type ActionData = TabInfo | WindowInfo;
+
+const isActionData: Predicate<ActionData> = is.OneOf([
+  isTabInfo,
+  isWindowInfo,
+]);
 
 type Params = Record<never, never>;
 
@@ -40,7 +50,7 @@ export class Kind extends BaseKind<Params> {
     }) => {
       for (const item of args.items) {
         if (item.action) {
-          const action = item.action as ActionData;
+          const action = ensure(item.action, isActionData);
           await args.denops.cmd(`tabnext ${action.tabnr}`);
         }
       }
@@ -53,7 +63,7 @@ export class Kind extends BaseKind<Params> {
     }) => {
       for (const item of args.items) {
         if (item.action) {
-          const action = item.action as ActionData;
+          const action = ensure(item.action, isActionData);
           await args.denops.cmd(`tabclose ${action.tabnr}`);
         }
       }
@@ -113,7 +123,10 @@ export class Kind extends BaseKind<Params> {
       border: string[],
     ) => {
       if (winlayout[0] === "leaf") {
-        const bufName = ensure(await fn.winbufnr(denops, winlayout[1]), is.Number);
+        const bufName = ensure(
+          await fn.winbufnr(denops, winlayout[1]),
+          is.Number,
+        );
         const title = ensure(await fn.bufname(denops, bufName), is.String);
         this.leafLayout(j, i, width, height, title, winLayoutPreview, border);
       }
