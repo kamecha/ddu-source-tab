@@ -1,17 +1,17 @@
-export { fn } from "https://deno.land/x/ddu_vim@v2.5.0/deps.ts";
-export type { Denops } from "https://deno.land/x/ddu_vim@v2.5.0/deps.ts";
+export { fn } from "https://deno.land/x/ddu_vim@v3.10.1/deps.ts";
+export type { Denops } from "https://deno.land/x/ddu_vim@v3.10.1/deps.ts";
 export {
   ActionFlags,
   BaseSource,
   BaseKind,
-} from "https://deno.land/x/ddu_vim@v2.5.0/types.ts";
+} from "https://deno.land/x/ddu_vim@v3.10.1/types.ts";
 export type {
   Actions,
   DduItem,
   Item,
   PreviewContext,
   Previewer,
-} from "https://deno.land/x/ddu_vim@v2.5.0/types.ts";
+} from "https://deno.land/x/ddu_vim@v3.10.1/types.ts";
 export {
   ensureArray,
   ensureNumber,
