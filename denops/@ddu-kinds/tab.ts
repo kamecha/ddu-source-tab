@@ -5,10 +5,11 @@ import {
   BaseKind,
   DduItem,
   Denops,
-  ensureNumber,
-  ensureObject,
-  ensureString,
+  ensure,
   fn,
+  is,
+  maybe,
+  Predicate,
   PreviewContext,
   Previewer,
 } from "../deps.ts";
@@ -20,6 +21,10 @@ type Params = Record<never, never>;
 type PreviewParams = {
   border: string[];
 };
+
+const isPreviewParams: Predicate<PreviewParams> = is.ObjectOf({
+  border: is.ArrayOf(is.String),
+});
 
 type LeafLayout = ["leaf", number];
 type RowLayout = ["row", WindowLayout[]];
@@ -68,8 +73,8 @@ export class Kind extends BaseKind<Params> {
     if (!action) {
       return undefined;
     }
-    const params = ensureObject(args.actionParams) as PreviewParams;
-    const border = params.border ?? ["┌", "─", "┐", "│", "┘", "─", "└", "│"];
+    const params = maybe(args.actionParams, isPreviewParams);
+    const border = params?.border ?? ["┌", "─", "┐", "│", "┘", "─", "└", "│"];
     const contents: string[] = [];
     // previewContextのheight,widthに沿ってcontentsを初期化
     for (let i = 0; i < args.previewContext.height; i++) {
@@ -108,8 +113,8 @@ export class Kind extends BaseKind<Params> {
       border: string[],
     ) => {
       if (winlayout[0] === "leaf") {
-        const bufName = ensureNumber(await fn.winbufnr(denops, winlayout[1]));
-        const title = ensureString(await fn.bufname(denops, bufName));
+        const bufName = ensure(await fn.winbufnr(denops, winlayout[1]), is.Number);
+        const title = ensure(await fn.bufname(denops, bufName), is.String);
         this.leafLayout(j, i, width, height, title, winLayoutPreview, border);
       }
       if (winlayout[0] === "col") {

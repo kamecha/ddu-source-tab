@@ -1,5 +1,5 @@
-import { BaseSource, ensureArray, ensureString, fn, Item } from "../deps.ts";
-import type { Denops } from "../deps.ts";
+import { BaseSource, ensure, fn, is, Item } from "../deps.ts";
+import type { Denops, Predicate } from "../deps.ts";
 import { ActionData } from "../@ddu-kinds/tab.ts";
 
 type Params = {
@@ -11,6 +11,12 @@ export type TabInfo = {
   variables: Record<string, unknown>;
   windows: number[];
 };
+
+export const isTabInfo: Predicate<TabInfo> = is.ObjectOf({
+  tabnr: is.Number,
+  variables: is.RecordOf(is.Unknown),
+  windows: is.ArrayOf(is.Number),
+});
 
 export type WindowInfo = {
   botline: number;
@@ -36,7 +42,7 @@ async function getBufName(denops: Denops, tabinfo: TabInfo): Promise<string[]> {
   for (const winid of tabinfo.windows) {
     const wininfo = await fn.getwininfo(denops, winid) as WindowInfo[];
     if (wininfo.length === 0) continue;
-    const bufname = ensureString(await fn.bufname(denops, wininfo[0].bufnr));
+    const bufname = ensure(await fn.bufname(denops, wininfo[0].bufnr), is.String);
     bufnames.push(bufname);
   }
   return bufnames;
@@ -61,14 +67,15 @@ async function getTabName(denops: Denops, tabnr: number): Promise<string> {
     return "";
   }
   try {
-    const tabPages = ensureArray<number>(
+    const tabPages = ensure(
       await denops.call("ddu#source#tab#get_tabpages"),
+      is.ArrayOf(is.Number)
     );
     const tabName = await denops.call(
       "ddu#source#tab#get_tab_name",
       tabPages[tabnr - 1],
     );
-    return ensureString(tabName);
+    return ensure(tabName, is.String);
   } catch (e) {
     console.log(e);
     return "";
@@ -84,7 +91,7 @@ export class Source extends BaseSource<Params> {
   }): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
-        const tabinfos = ensureArray<TabInfo>(await fn.gettabinfo(args.denops));
+        const tabinfos = ensure(await fn.gettabinfo(args.denops), is.ArrayOf(isTabInfo));
         const items: Item<ActionData>[] = [];
         for (const tabinfo of tabinfos) {
           // word内にtabName([Float])とかが入るとeditがうまくいかない
