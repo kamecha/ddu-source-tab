@@ -24,8 +24,8 @@ export type RowLayout = ["row", WindowLayout[]];
 export type ColLayout = ["col", WindowLayout[]];
 export type WindowLayout = LeafLayout | RowLayout | ColLayout;
 
-async function getBufName(denps: Denops, tabinfo: TabInfo): Promise<string[]> {
-  const winlayout = await fn.winlayout(denps, tabinfo.tabnr) as WindowLayout;
+async function getBufName(denops: Denops, tabinfo: TabInfo): Promise<string[]> {
+  const winlayout = await fn.winlayout(denops, tabinfo.tabnr) as WindowLayout;
   const bufnames: string[] = [];
   const getBufName = async (d: Denops, layout: WindowLayout) => {
     if (layout[0] === "leaf") {
@@ -39,7 +39,7 @@ async function getBufName(denps: Denops, tabinfo: TabInfo): Promise<string[]> {
       }
     }
   };
-  await getBufName(denps, winlayout);
+  await getBufName(denops, winlayout);
   return bufnames;
 }
 
