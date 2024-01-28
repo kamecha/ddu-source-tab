@@ -85,9 +85,9 @@ export class Source extends BaseSource<Params> {
   }): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
-        const tabinfo = ensureArray<TabInfo>(await fn.gettabinfo(args.denops));
+        const tabinfos = ensureArray<TabInfo>(await fn.gettabinfo(args.denops));
         const items: Item<ActionData>[] = [];
-        for (const tab of tabinfo) {
+        for (const tab of tabinfos) {
           // word内にtabName([Float])とかが入るとeditがうまくいかない
           const tabName = await getTabName(args.denops, tab.tabnr);
           const bufnames = await getBufName(args.denops, tab.tabnr);
