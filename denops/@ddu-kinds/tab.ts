@@ -12,9 +12,9 @@ import {
   Previewer,
 } from "../deps.ts";
 
-export interface ActionData {
+export type ActionData = {
   tabnr: number;
-}
+};
 
 type Params = Record<never, never>;
 
