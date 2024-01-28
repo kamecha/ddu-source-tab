@@ -19,27 +19,38 @@ type TabInfo = {
   windows: number[];
 };
 
+export type WindowInfo = {
+  botline: number;
+  bufnr: number;
+  height: number;
+  loclist: number;
+  quickfix: number;
+  terminal: number;
+  tabnr: number;
+  topline: number;
+  variables: Record<string, unknown>;
+  width: number;
+  winbar: number;
+  wincol: number;
+  textoff: number;
+  winid: number;
+  winnr: number;
+  winrow: number;
+};
+
 export type LeafLayout = ["leaf", number];
 export type RowLayout = ["row", WindowLayout[]];
 export type ColLayout = ["col", WindowLayout[]];
 export type WindowLayout = LeafLayout | RowLayout | ColLayout;
 
 async function getBufName(denops: Denops, tabinfo: TabInfo): Promise<string[]> {
-  const winlayout = await fn.winlayout(denops, tabinfo.tabnr) as WindowLayout;
   const bufnames: string[] = [];
-  const getBufName = async (d: Denops, layout: WindowLayout) => {
-    if (layout[0] === "leaf") {
-      const winId = layout[1];
-      const bufNum = ensureNumber(await fn.winbufnr(d, winId));
-      const bufName = ensureString(await fn.bufname(d, bufNum));
-      bufnames.push(bufName);
-    } else if (layout[0] === "row" || layout[0] === "col") {
-      for (const l of layout[1]) {
-        await getBufName(d, l);
-      }
-    }
-  };
-  await getBufName(denops, winlayout);
+  for (const winid of tabinfo.windows) {
+    const wininfo = await fn.getwininfo(denops, winid) as WindowInfo[];
+    if (wininfo.length === 0) continue;
+    const bufname = ensureString(await fn.bufname(denops, wininfo[0].bufnr));
+    bufnames.push(bufname);
+  }
   return bufnames;
 }
 
