@@ -105,9 +105,9 @@ async function getTabName(denops: Denops, tabnr: number): Promise<string> {
 }
 
 export class Source extends BaseSource<Params> {
-  kind = "tab";
+  override kind = "tab";
 
-  gather(args: {
+  override gather(args: {
     denops: Denops;
     sourceParams: Params;
   }): ReadableStream<Item<ActionData>[]> {
@@ -140,7 +140,7 @@ export class Source extends BaseSource<Params> {
     });
   }
 
-  params(): Params {
+  override params(): Params {
     return {
       format: "tab:%n:%w",
     };
