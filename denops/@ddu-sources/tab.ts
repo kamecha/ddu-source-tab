@@ -37,11 +37,6 @@ export type WindowInfo = {
   winrow: number;
 };
 
-export type LeafLayout = ["leaf", number];
-export type RowLayout = ["row", WindowLayout[]];
-export type ColLayout = ["col", WindowLayout[]];
-export type WindowLayout = LeafLayout | RowLayout | ColLayout;
-
 async function getBufName(denops: Denops, tabinfo: TabInfo): Promise<string[]> {
   const bufnames: string[] = [];
   for (const winid of tabinfo.windows) {

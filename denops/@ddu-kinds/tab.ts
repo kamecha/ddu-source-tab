@@ -11,7 +11,6 @@ import {
   PreviewContext,
   Previewer,
 } from "../deps.ts";
-import { WindowLayout } from "../@ddu-sources/tab.ts";
 
 export interface ActionData {
   tabnr: number;
@@ -22,6 +21,11 @@ type Params = Record<never, never>;
 type PreviewParams = {
   border: string[];
 };
+
+type LeafLayout = ["leaf", number];
+type RowLayout = ["row", WindowLayout[]];
+type ColLayout = ["col", WindowLayout[]];
+type WindowLayout = LeafLayout | RowLayout | ColLayout;
 
 export class Kind extends BaseKind<Params> {
   actions: Actions<Params> = {
