@@ -1,7 +1,6 @@
 import {
   BaseSource,
   ensureArray,
-  ensureNumber,
   ensureString,
   fn,
   Item,
