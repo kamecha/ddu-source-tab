@@ -24,8 +24,8 @@ export type RowLayout = ["row", WindowLayout[]];
 export type ColLayout = ["col", WindowLayout[]];
 export type WindowLayout = LeafLayout | RowLayout | ColLayout;
 
-async function getBufName(denps: Denops, tabnr: number): Promise<string[]> {
-  const winlayout = await fn.winlayout(denps, tabnr) as WindowLayout;
+async function getBufName(denps: Denops, tabinfo: TabInfo): Promise<string[]> {
+  const winlayout = await fn.winlayout(denps, tabinfo.tabnr) as WindowLayout;
   const bufnames: string[] = [];
   const getBufName = async (d: Denops, layout: WindowLayout) => {
     if (layout[0] === "leaf") {
@@ -87,20 +87,20 @@ export class Source extends BaseSource<Params> {
       async start(controller) {
         const tabinfos = ensureArray<TabInfo>(await fn.gettabinfo(args.denops));
         const items: Item<ActionData>[] = [];
-        for (const tab of tabinfos) {
+        for (const tabinfo of tabinfos) {
           // word内にtabName([Float])とかが入るとeditがうまくいかない
-          const tabName = await getTabName(args.denops, tab.tabnr);
-          const bufnames = await getBufName(args.denops, tab.tabnr);
+          const tabName = await getTabName(args.denops, tabinfo.tabnr);
+          const bufnames = await getBufName(args.denops, tabinfo);
           const regexp = new RegExp("(\s|\t|\n|\v)", "g");
           const text: string = args.sourceParams.format
             .replaceAll(regexp, " ")
-            .replaceAll("%n", tab.tabnr.toString())
+            .replaceAll("%n", tabinfo.tabnr.toString())
             .replaceAll("%T", tabName)
             .replaceAll("%w", bufnames.join(" "));
           items.push({
             word: text,
             action: {
-              tabnr: tab.tabnr,
+              tabnr: tabinfo.tabnr,
             },
           });
         }
