@@ -1,5 +1,5 @@
 import { BaseSource, ensure, fn, is, Item } from "../deps.ts";
-import type { Denops, Predicate } from "../deps.ts";
+import type { Denops, GatherArguments, Predicate } from "../deps.ts";
 import { ActionData } from "../@ddu-kinds/tab.ts";
 
 type Params = {
@@ -107,10 +107,9 @@ async function getTabName(denops: Denops, tabnr: number): Promise<string> {
 export class Source extends BaseSource<Params> {
   override kind = "tab";
 
-  override gather(args: {
-    denops: Denops;
-    sourceParams: Params;
-  }): ReadableStream<Item<ActionData>[]> {
+  override gather(
+    args: GatherArguments<Params>,
+  ): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
         const tabinfos = ensure(

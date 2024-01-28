@@ -12,6 +12,7 @@ export type {
   PreviewContext,
   Previewer,
 } from "https://deno.land/x/ddu_vim@v3.10.1/types.ts";
+export type { GatherArguments } from "https://deno.land/x/ddu_vim@v3.10.1/base/source.ts";
 export {
   ensure,
   is,
