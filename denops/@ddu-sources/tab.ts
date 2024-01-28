@@ -1,10 +1,4 @@
-import {
-  BaseSource,
-  ensureArray,
-  ensureString,
-  fn,
-  Item,
-} from "../deps.ts";
+import { BaseSource, ensureArray, ensureString, fn, Item } from "../deps.ts";
 import type { Denops } from "../deps.ts";
 import { ActionData } from "../@ddu-kinds/tab.ts";
 
@@ -12,7 +6,7 @@ type Params = {
   format: string;
 };
 
-type TabInfo = {
+export type TabInfo = {
   tabnr: number;
   variables: Record<string, unknown>;
   windows: number[];
@@ -104,9 +98,7 @@ export class Source extends BaseSource<Params> {
             .replaceAll("%w", bufnames.join(" "));
           items.push({
             word: text,
-            action: {
-              tabnr: tabinfo.tabnr,
-            },
+            action: tabinfo,
           });
         }
         controller.enqueue(items);

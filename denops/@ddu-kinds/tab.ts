@@ -1,3 +1,4 @@
+import { TabInfo, WindowInfo } from "../@ddu-sources/tab.ts";
 import {
   ActionFlags,
   Actions,
@@ -12,9 +13,7 @@ import {
   Previewer,
 } from "../deps.ts";
 
-export type ActionData = {
-  tabnr: number;
-};
+export type ActionData = TabInfo | WindowInfo;
 
 type Params = Record<never, never>;
 
