@@ -94,6 +94,7 @@ export class Source extends BaseSource<Params> {
           const text: string = args.sourceParams.format
             .replaceAll(regexp, " ")
             .replaceAll("%n", tabinfo.tabnr.toString())
+            // deprecated
             .replaceAll("%T", tabName)
             .replaceAll("%w", bufnames.join(" "));
           items.push({
