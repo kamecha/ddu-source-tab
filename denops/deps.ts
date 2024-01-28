@@ -2,8 +2,8 @@ export { fn } from "https://deno.land/x/ddu_vim@v3.10.1/deps.ts";
 export type { Denops } from "https://deno.land/x/ddu_vim@v3.10.1/deps.ts";
 export {
   ActionFlags,
-  BaseSource,
   BaseKind,
+  BaseSource,
 } from "https://deno.land/x/ddu_vim@v3.10.1/types.ts";
 export type {
   Actions,
