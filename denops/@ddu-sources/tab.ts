@@ -61,7 +61,10 @@ async function getBufName(denops: Denops, tabinfo: TabInfo): Promise<string[]> {
   for (const winid of tabinfo.windows) {
     const wininfo = await fn.getwininfo(denops, winid) as WindowInfo[];
     if (wininfo.length === 0) continue;
-    const bufname = ensure(await fn.bufname(denops, wininfo[0].bufnr), is.String);
+    const bufname = ensure(
+      await fn.bufname(denops, wininfo[0].bufnr),
+      is.String,
+    );
     bufnames.push(bufname);
   }
   return bufnames;
@@ -88,7 +91,7 @@ async function getTabName(denops: Denops, tabnr: number): Promise<string> {
   try {
     const tabPages = ensure(
       await denops.call("ddu#source#tab#get_tabpages"),
-      is.ArrayOf(is.Number)
+      is.ArrayOf(is.Number),
     );
     const tabName = await denops.call(
       "ddu#source#tab#get_tab_name",
@@ -110,7 +113,10 @@ export class Source extends BaseSource<Params> {
   }): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
-        const tabinfos = ensure(await fn.gettabinfo(args.denops), is.ArrayOf(isTabInfo));
+        const tabinfos = ensure(
+          await fn.gettabinfo(args.denops),
+          is.ArrayOf(isTabInfo),
+        );
         const items: Item<ActionData>[] = [];
         for (const tabinfo of tabinfos) {
           // word内にtabName([Float])とかが入るとeditがうまくいかない
