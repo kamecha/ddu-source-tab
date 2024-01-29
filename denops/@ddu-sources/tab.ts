@@ -75,6 +75,15 @@ async function getBufName(denops: Denops, tabinfo: TabInfo): Promise<string[]> {
   return bufnames;
 }
 
+async function checkTabby(denops: Denops, text: string): Promise<void> {
+  if (text.includes("%T")) {
+    await denops.call(
+      "ddu#util#print_error",
+      "tabby format (%T) is deprecated",
+    );
+  }
+}
+
 // ↓luaでこれを書くとtabの名前が取れる
 /*
 lua << EOF
@@ -143,6 +152,7 @@ export class Source extends BaseSource<Params> {
             const tabName = await getTabName(args.denops, tabinfo.tabnr);
             const bufnames = await getBufName(args.denops, tabinfo);
             const regexp = new RegExp("(\s|\t|\n|\v)", "g");
+            checkTabby(args.denops, args.sourceParams.format);
             const text: string = args.sourceParams.format
               .replaceAll(regexp, " ")
               .replaceAll("%n", tabinfo.tabnr.toString())
