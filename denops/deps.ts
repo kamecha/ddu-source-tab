@@ -8,6 +8,7 @@ export {
 export type {
   Actions,
   DduItem,
+  DduOptions,
   Item,
   PreviewContext,
   Previewer,

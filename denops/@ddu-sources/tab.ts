@@ -1,5 +1,10 @@
 import { BaseSource, ensure, fn, is, Item } from "../deps.ts";
-import type { Denops, GatherArguments, Predicate } from "../deps.ts";
+import type {
+  DduOptions,
+  Denops,
+  GatherArguments,
+  Predicate,
+} from "../deps.ts";
 import { ActionData } from "../@ddu-kinds/tab.ts";
 
 type Params = {
@@ -104,6 +109,21 @@ async function getTabName(denops: Denops, tabnr: number): Promise<string> {
   }
 }
 
+async function isDduWindowId(denops: Denops, winid: number): Promise<boolean> {
+  const currentDduOptions =
+    (await denops.call("ddu#custom#get_current")) as Partial<
+      DduOptions
+    >;
+  const dduWinIds: number[] = ensure(
+    await denops.call(
+      "ddu#ui#winids",
+      currentDduOptions["name"],
+    ),
+    is.ArrayOf(is.Number),
+  );
+  return dduWinIds.includes(winid);
+}
+
 export class Source extends BaseSource<Params> {
   override kind = "tab";
 
@@ -112,28 +132,60 @@ export class Source extends BaseSource<Params> {
   ): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
-        const tabinfos = ensure(
-          await fn.gettabinfo(args.denops),
-          is.ArrayOf(isTabInfo),
-        );
         const items: Item<ActionData>[] = [];
-        for (const tabinfo of tabinfos) {
-          // word内にtabName([Float])とかが入るとeditがうまくいかない
-          const tabName = await getTabName(args.denops, tabinfo.tabnr);
-          const bufnames = await getBufName(args.denops, tabinfo);
-          const regexp = new RegExp("(\s|\t|\n|\v)", "g");
-          const text: string = args.sourceParams.format
-            .replaceAll(regexp, " ")
-            .replaceAll("%n", tabinfo.tabnr.toString())
-            // deprecated
-            .replaceAll("%T", tabName)
-            .replaceAll("%w", bufnames.join(" "));
-          items.push({
-            word: text,
-            action: tabinfo,
-          });
+        if (args.parent === undefined) {
+          const tabinfos = ensure(
+            await fn.gettabinfo(args.denops),
+            is.ArrayOf(isTabInfo),
+          );
+          for (const tabinfo of tabinfos) {
+            // word内にtabName([Float])とかが入るとeditがうまくいかない
+            const tabName = await getTabName(args.denops, tabinfo.tabnr);
+            const bufnames = await getBufName(args.denops, tabinfo);
+            const regexp = new RegExp("(\s|\t|\n|\v)", "g");
+            const text: string = args.sourceParams.format
+              .replaceAll(regexp, " ")
+              .replaceAll("%n", tabinfo.tabnr.toString())
+              // deprecated
+              .replaceAll("%T", tabName)
+              .replaceAll("%w", bufnames.join(" "));
+            items.push({
+              word: text,
+              action: tabinfo,
+              // treePath & isTree are needed to fire expandItem action
+              // not only for isTree
+              treePath: tabinfo.tabnr.toString(),
+              isTree: true,
+            });
+          }
+          controller.enqueue(items);
+        } else {
+          const parentAction = ensure(args.parent.action, isTabInfo);
+          const tabinfos = ensure(
+            await fn.gettabinfo(args.denops, parentAction.tabnr),
+            is.ArrayOf(isTabInfo),
+          );
+          if (tabinfos.length === 0) return;
+          const tabinfo = tabinfos[0];
+          for (const winid of tabinfo.windows) {
+            const wininfos = ensure(
+              await fn.getwininfo(args.denops, winid),
+              is.ArrayOf(isWindowInfo),
+            );
+            if (wininfos.length === 0) continue;
+            const wininfo = wininfos[0];
+            if (await isDduWindowId(args.denops, wininfo.winid)) continue;
+            const bufname = ensure(
+              await fn.bufname(args.denops, wininfo.bufnr),
+              is.String,
+            );
+            items.push({
+              word: bufname,
+              action: wininfo,
+            });
+          }
+          controller.enqueue(items);
         }
-        controller.enqueue(items);
         controller.close();
       },
     });
