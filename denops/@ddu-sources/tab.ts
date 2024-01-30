@@ -141,34 +141,8 @@ export class Source extends BaseSource<Params> {
   ): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
-        const items: Item<ActionData>[] = [];
         if (args.parent === undefined) {
-          const tabinfos = ensure(
-            await fn.gettabinfo(args.denops),
-            is.ArrayOf(isTabInfo),
-          );
-          for (const tabinfo of tabinfos) {
-            // word内にtabName([Float])とかが入るとeditがうまくいかない
-            const tabName = await getTabName(args.denops, tabinfo.tabnr);
-            const bufnames = await getBufName(args.denops, tabinfo);
-            const regexp = new RegExp("(\s|\t|\n|\v)", "g");
-            checkTabby(args.denops, args.sourceParams.format);
-            const text: string = args.sourceParams.format
-              .replaceAll(regexp, " ")
-              .replaceAll("%n", tabinfo.tabnr.toString())
-              // deprecated
-              .replaceAll("%T", tabName)
-              .replaceAll("%w", bufnames.join(" "));
-            items.push({
-              word: text,
-              action: tabinfo,
-              // treePath & isTree are needed to fire expandItem action
-              // not only for isTree
-              treePath: tabinfo.tabnr.toString(),
-              isTree: true,
-            });
-          }
-          controller.enqueue(items);
+          controller.enqueue(await Source.prototype.gatherTab(args));
         } else {
           const parentAction = ensure(args.parent.action, isTabInfo);
           const tabinfos = ensure(
@@ -177,24 +151,9 @@ export class Source extends BaseSource<Params> {
           );
           if (tabinfos.length === 0) return;
           const tabinfo = tabinfos[0];
-          for (const winid of tabinfo.windows) {
-            const wininfos = ensure(
-              await fn.getwininfo(args.denops, winid),
-              is.ArrayOf(isWindowInfo),
-            );
-            if (wininfos.length === 0) continue;
-            const wininfo = wininfos[0];
-            if (await isDduWindowId(args.denops, wininfo.winid)) continue;
-            const bufname = ensure(
-              await fn.bufname(args.denops, wininfo.bufnr),
-              is.String,
-            );
-            items.push({
-              word: bufname,
-              action: wininfo,
-            });
-          }
-          controller.enqueue(items);
+          controller.enqueue(
+            await Source.prototype.gatherWindow(args, tabinfo),
+          );
         }
         controller.close();
       },
@@ -205,5 +164,60 @@ export class Source extends BaseSource<Params> {
     return {
       format: "tab:%n:%w",
     };
+  }
+
+  async gatherTab(args: GatherArguments<Params>): Promise<Item<TabInfo>[]> {
+    const items: Item<TabInfo>[] = [];
+    const tabinfos = ensure(
+      await fn.gettabinfo(args.denops),
+      is.ArrayOf(isTabInfo),
+    );
+    for (const tabinfo of tabinfos) {
+      // word内にtabName([Float])とかが入るとeditがうまくいかない
+      const tabName = await getTabName(args.denops, tabinfo.tabnr);
+      const bufnames = await getBufName(args.denops, tabinfo);
+      const regexp = new RegExp("(\s|\t|\n|\v)", "g");
+      checkTabby(args.denops, args.sourceParams.format);
+      const text: string = args.sourceParams.format
+        .replaceAll(regexp, " ")
+        .replaceAll("%n", tabinfo.tabnr.toString())
+        // deprecated
+        .replaceAll("%T", tabName)
+        .replaceAll("%w", bufnames.join(" "));
+      items.push({
+        word: text,
+        action: tabinfo,
+        // treePath & isTree are needed to fire expandItem action
+        // not only for isTree
+        treePath: tabinfo.tabnr.toString(),
+        isTree: true,
+      });
+    }
+    return items;
+  }
+
+  async gatherWindow(
+    args: GatherArguments<Params>,
+    tabinfo: TabInfo,
+  ): Promise<Item<WindowInfo>[]> {
+    const items: Item<WindowInfo>[] = [];
+    for (const winid of tabinfo.windows) {
+      const wininfos = ensure(
+        await fn.getwininfo(args.denops, winid),
+        is.ArrayOf(isWindowInfo),
+      );
+      if (wininfos.length === 0) continue;
+      const wininfo = wininfos[0];
+      if (await isDduWindowId(args.denops, wininfo.winid)) continue;
+      const bufname = ensure(
+        await fn.bufname(args.denops, wininfo.bufnr),
+        is.String,
+      );
+      items.push({
+        word: bufname,
+        action: wininfo,
+      });
+    }
+    return items;
   }
 }
