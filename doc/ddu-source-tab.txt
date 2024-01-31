@@ -71,6 +71,7 @@ format 		(string)
 		The following format specifiers are supported:
 		
 		"%n":tab number
+		"%N":number of windows the tab has
 		"%T":tabby tab name (requires tabby.vim)
 			NOTE: this format specifier is deprecated.
 			Please use |ddu-column-custom| instead.
