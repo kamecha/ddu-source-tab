@@ -30,10 +30,12 @@ type Params = Record<never, never>;
 
 type PreviewParams = {
   border: string[];
+  focusBorder: string[];
 };
 
 const isPreviewParams: Predicate<PreviewParams> = is.ObjectOf({
   border: is.ArrayOf(is.String),
+  focusBorder: is.ArrayOf(is.String),
 });
 
 type LeafLayout = ["leaf", number];
@@ -95,6 +97,8 @@ export class Kind extends BaseKind<Params> {
     }
     const params = maybe(args.actionParams, isPreviewParams);
     const border = params?.border ?? ["┌", "─", "┐", "│", "┘", "─", "└", "│"];
+    const focusBorder = params?.focusBorder ??
+      ["╔", "═", "╗", "║", "╝", "═", "╚", "║"];
     const contents: string[] = [];
     // previewContextのheight,widthに沿ってcontentsを初期化
     for (let i = 0; i < args.previewContext.height; i++) {
@@ -111,6 +115,8 @@ export class Kind extends BaseKind<Params> {
         contents,
         winLayout,
         border,
+        focusBorder,
+        maybe(action, isWindowInfo)?.winid,
       ),
     };
   }
@@ -119,6 +125,8 @@ export class Kind extends BaseKind<Params> {
     contents: string[],
     winLayout: WindowLayout,
     border: string[],
+    focusBorder: string[],
+    winid?: number,
   ): Promise<string[]> {
     if (contents.length === 0) {
       return [];
@@ -131,6 +139,7 @@ export class Kind extends BaseKind<Params> {
       width: number,
       height: number,
       border: string[],
+      focusBorder: string[],
     ) => {
       if (winlayout[0] === "leaf") {
         const bufName = ensure(
@@ -138,7 +147,15 @@ export class Kind extends BaseKind<Params> {
           is.Number,
         );
         const title = ensure(await fn.bufname(denops, bufName), is.String);
-        this.leafLayout(j, i, width, height, title, winLayoutPreview, border);
+        this.leafLayout(
+          j,
+          i,
+          width,
+          height,
+          title,
+          winLayoutPreview,
+          (winid && winlayout[1] === winid) ? focusBorder : border,
+        );
       }
       if (winlayout[0] === "col") {
         const next_height = Math.floor(height / winlayout[1].length);
@@ -151,6 +168,7 @@ export class Kind extends BaseKind<Params> {
             width,
             next_height,
             border,
+            focusBorder,
           );
         }
       }
@@ -165,6 +183,7 @@ export class Kind extends BaseKind<Params> {
             next_width,
             height,
             border,
+            focusBorder,
           );
         }
       }
@@ -176,6 +195,7 @@ export class Kind extends BaseKind<Params> {
       contents[0].length,
       contents.length,
       border,
+      focusBorder,
     );
     return winLayoutPreview;
   }
