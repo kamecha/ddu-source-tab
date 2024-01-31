@@ -178,9 +178,15 @@ export class Source extends BaseSource<Params> {
       const bufnames = await getBufName(args.denops, tabinfo);
       const regexp = new RegExp("(\s|\t|\n|\v)", "g");
       checkTabby(args.denops, args.sourceParams.format);
+      const filteredWindows: number[] = [];
+      for (const winid of tabinfo.windows) {
+        const flag = await isDduWindowId(args.denops, winid);
+        if (!flag) filteredWindows.push(winid);
+      }
       const text: string = args.sourceParams.format
         .replaceAll(regexp, " ")
         .replaceAll("%n", tabinfo.tabnr.toString())
+        .replaceAll("%N", filteredWindows.length.toString())
         // deprecated
         .replaceAll("%T", tabName)
         .replaceAll("%w", bufnames.join(" "));
