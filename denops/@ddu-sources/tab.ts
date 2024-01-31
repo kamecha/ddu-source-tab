@@ -162,7 +162,7 @@ export class Source extends BaseSource<Params> {
 
   override params(): Params {
     return {
-      format: "tab:%n:%w",
+      format: "tab(%n): %N window",
     };
   }
 

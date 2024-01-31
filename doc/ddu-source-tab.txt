@@ -77,7 +77,7 @@ format 		(string)
 			Please use |ddu-column-custom| instead.
 		"%w":windows related buffer name in each tab
 
-		Default: "tab:%n:%w"
+		Default: "tab(%n): %N window"
 
 ==============================================================================
 FREQUENTLY ASKED QUESTIONS (FAQ)			*ddu-source-tab-faq*
