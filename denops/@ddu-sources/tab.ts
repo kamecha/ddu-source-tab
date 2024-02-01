@@ -220,7 +220,7 @@ export class Source extends BaseSource<Params> {
         is.String,
       );
       items.push({
-        word: `${wininfo.winnr}: ${bufname}`,
+        word: `${wininfo.winnr}: ${bufname || "[No Name]"}`,
         action: wininfo,
       });
     }
