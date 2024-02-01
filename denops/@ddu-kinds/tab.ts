@@ -146,7 +146,8 @@ export class Kind extends BaseKind<Params> {
           await fn.winbufnr(denops, winlayout[1]),
           is.Number,
         );
-        const title = ensure(await fn.bufname(denops, bufName), is.String);
+        const title = ensure(await fn.bufname(denops, bufName), is.String) ||
+          "[No Name]";
         this.leafLayout(
           j,
           i,
