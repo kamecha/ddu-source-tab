@@ -94,6 +94,22 @@ export class Kind extends BaseKind<Params> {
           }
           if (isWindowInfo(action)) {
             await fn.win_execute(args.denops, action.winid, "close");
+            // 該当するtabnrのwindowsからwinidを削除
+            tabnrMap[action.tabnr].windows = tabnrMap[action.tabnr].windows
+              .filter(
+                (winid) => winid !== action.winid,
+              );
+            if (tabnrMap[action.tabnr].windows.length === 0) {
+              tabnrMap[action.tabnr] = {
+                tabnr: -1,
+                windows: [],
+              };
+              for (const tabnr in tabnrMap) {
+                if (tabnrMap[tabnr].tabnr > action.tabnr) {
+                  tabnrMap[tabnr].tabnr -= 1;
+                }
+              }
+            }
           }
         }
       }
