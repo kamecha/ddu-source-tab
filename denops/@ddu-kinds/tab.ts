@@ -69,23 +69,27 @@ export class Kind extends BaseKind<Params> {
       items: DduItem[];
     }) => {
       // tabnrのずれを補正する
-      const tabnrMap: Record<number, number> = {};
+      const tabnrMap: Record<number, TabInfo> = {};
       const tabinfos = ensure(
         await fn.gettabinfo(args.denops),
         is.ArrayOf(isTabInfo),
       );
       for (const tabinfo of tabinfos) {
-        tabnrMap[tabinfo.tabnr] = tabinfo.tabnr;
+        tabnrMap[tabinfo.tabnr] = tabinfo;
       }
       for (const item of args.items) {
         if (item.action) {
           const action = ensure(item.action, isActionData);
           if (isTabInfo(action)) {
-            await args.denops.cmd(`tabclose ${tabnrMap[action.tabnr]}`);
-            tabnrMap[action.tabnr] = -1;
+            await args.denops.cmd(`tabclose ${tabnrMap[action.tabnr].tabnr}`);
+            tabnrMap[action.tabnr] = {
+              tabnr: -1,
+              variables: {},
+              windows: [],
+            };
             for (const tabnr in tabnrMap) {
-              if (tabnrMap[tabnr] > action.tabnr) {
-                tabnrMap[tabnr] -= 1;
+              if (tabnrMap[tabnr].tabnr > action.tabnr) {
+                tabnrMap[tabnr].tabnr -= 1;
               }
             }
           }
