@@ -81,7 +81,12 @@ export class Kind extends BaseKind<Params> {
         if (item.action) {
           const action = ensure(item.action, isActionData);
           if (isTabInfo(action)) {
-            await args.denops.cmd(`tabclose ${tabnrMap[action.tabnr].tabnr}`);
+            try {
+              await args.denops.cmd(`tabclose ${tabnrMap[action.tabnr].tabnr}`);
+            } catch (_) {
+              // TODO: エラーメッセージが決め打ちなのでちゃんと調べとく
+              console.error("E784: Cannot close last tab page");
+            }
             tabnrMap[action.tabnr] = {
               tabnr: -1,
               windows: [],
@@ -93,7 +98,12 @@ export class Kind extends BaseKind<Params> {
             }
           }
           if (isWindowInfo(action)) {
-            await fn.win_execute(args.denops, action.winid, "close");
+            try {
+              await fn.win_execute(args.denops, action.winid, "close");
+            } catch (_) {
+              // TODO: エラーメッセージが決め打ちなのでちゃんと調べとく
+              console.error("E444: Cannot close last window");
+            }
             // 該当するtabnrのwindowsからwinidを削除
             tabnrMap[action.tabnr].windows = tabnrMap[action.tabnr].windows
               .filter(
