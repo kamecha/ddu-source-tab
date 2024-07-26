@@ -25,14 +25,6 @@ Please install both "ddu.vim" and "denops.vim".
 https://github.com/Shougo/ddu.vim
 https://github.com/vim-denops/denops.vim
 
-Optional: If you want to use the tab name format specifier "%T", please install "tabby.vim".
-
-https://github.com/nanozuki/tabby.nvim
-
-NOTE: this feature is deprecated.
-Please use |ddu-column-custom| instead.
-
-https://github.com/kamecha/ddu-column-custom
 
 ==============================================================================
 EXAMPLES				*ddu-source-tab-examples*
@@ -72,9 +64,6 @@ format 		(string)
 		
 		"%n":tab number
 		"%N":number of windows the tab has
-		"%T":tabby tab name (requires tabby.vim)
-			NOTE: this format specifier is deprecated.
-			Please use |ddu-column-custom| instead.
 		"%w":windows related buffer name in each tab
 
 		Default: "tab(%n): %N window"

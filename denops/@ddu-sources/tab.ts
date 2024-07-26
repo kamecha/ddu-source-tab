@@ -75,49 +75,6 @@ async function getBufName(denops: Denops, tabinfo: TabInfo): Promise<string[]> {
   return bufnames;
 }
 
-async function checkTabby(denops: Denops, text: string): Promise<void> {
-  if (text.includes("%T")) {
-    await denops.call(
-      "ddu#util#print_error",
-      "tabby format (%T) is deprecated",
-    );
-  }
-}
-
-// ↓luaでこれを書くとtabの名前が取れる
-/*
-lua << EOF
-local tab = require('tabby.tab')
-print(tab.get_name(1))
-EOF
-*/
-async function getTabName(denops: Denops, tabnr: number): Promise<string> {
-  if (
-    !(
-      await fn.has(denops, "nvim") &&
-      await denops.eval(
-        `luaeval('type(select(2, pcall(require, "tabby")))') == "table"`,
-      )
-    )
-  ) {
-    return "";
-  }
-  try {
-    const tabPages = ensure(
-      await denops.call("ddu#source#tab#get_tabpages"),
-      is.ArrayOf(is.Number),
-    );
-    const tabName = await denops.call(
-      "ddu#source#tab#get_tab_name",
-      tabPages[tabnr - 1],
-    );
-    return ensure(tabName, is.String);
-  } catch (e) {
-    console.log(e);
-    return "";
-  }
-}
-
 async function isDduWindowId(denops: Denops, winid: number): Promise<boolean> {
   const currentDduOptions =
     (await denops.call("ddu#custom#get_current")) as Partial<
@@ -174,10 +131,8 @@ export class Source extends BaseSource<Params> {
     );
     for (const tabinfo of tabinfos) {
       // word内にtabName([Float])とかが入るとeditがうまくいかない
-      const tabName = await getTabName(args.denops, tabinfo.tabnr);
       const bufnames = await getBufName(args.denops, tabinfo);
       const regexp = new RegExp("(\s|\t|\n|\v)", "g");
-      checkTabby(args.denops, args.sourceParams.format);
       const filteredWindows: number[] = [];
       for (const winid of tabinfo.windows) {
         const flag = await isDduWindowId(args.denops, winid);
@@ -187,8 +142,6 @@ export class Source extends BaseSource<Params> {
         .replaceAll(regexp, " ")
         .replaceAll("%n", tabinfo.tabnr.toString())
         .replaceAll("%N", filteredWindows.length.toString())
-        // deprecated
-        .replaceAll("%T", tabName)
         .replaceAll("%w", bufnames.join(" "));
       items.push({
         word: text,
