@@ -70,6 +70,20 @@ export class Kind extends BaseKind<Params> {
     }) => {
       // tabnrのずれを補正する
       const tabnrMap: Record<number, { tabnr: number; windows: number[] }> = {};
+      const closeTabnr: (
+        map: Record<number, { tabnr: number; windows: number[] }>,
+        tabnr: number,
+      ) => void = (map, tabnr) => {
+        map[tabnr] = {
+          tabnr: -1,
+          windows: [],
+        };
+        for (const tabInfoIndex in map) {
+          if (map[tabInfoIndex].tabnr > tabnr) {
+            map[tabInfoIndex].tabnr -= 1;
+          }
+        }
+      };
       const tabinfos = ensure(
         await fn.gettabinfo(args.denops),
         is.ArrayOf(isTabInfo),
@@ -87,15 +101,7 @@ export class Kind extends BaseKind<Params> {
               // TODO: エラーメッセージが決め打ちなのでちゃんと調べとく
               console.error("E784: Cannot close last tab page");
             }
-            tabnrMap[action.tabnr] = {
-              tabnr: -1,
-              windows: [],
-            };
-            for (const tabnr in tabnrMap) {
-              if (tabnrMap[tabnr].tabnr > action.tabnr) {
-                tabnrMap[tabnr].tabnr -= 1;
-              }
-            }
+            closeTabnr(tabnrMap, action.tabnr);
           }
           if (isWindowInfo(action)) {
             try {
@@ -110,15 +116,7 @@ export class Kind extends BaseKind<Params> {
                 (winid) => winid !== action.winid,
               );
             if (tabnrMap[action.tabnr].windows.length === 0) {
-              tabnrMap[action.tabnr] = {
-                tabnr: -1,
-                windows: [],
-              };
-              for (const tabnr in tabnrMap) {
-                if (tabnrMap[tabnr].tabnr > action.tabnr) {
-                  tabnrMap[tabnr].tabnr -= 1;
-                }
-              }
+              closeTabnr(tabnrMap, action.tabnr);
             }
           }
         }
