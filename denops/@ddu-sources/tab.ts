@@ -101,15 +101,10 @@ export class Source extends BaseSource<Params> {
         if (args.parent === undefined) {
           controller.enqueue(await Source.prototype.gatherTab(args));
         } else {
-          const parentAction = ensure(args.parent.action, isTabInfo);
-          const tabinfos = ensure(
-            await fn.gettabinfo(args.denops, parentAction.tabnr),
-            is.ArrayOf(isTabInfo),
-          );
-          if (tabinfos.length === 0) return;
-          const tabinfo = tabinfos[0];
+          // windowはtreeではないので、parentがある場合のparentは確定でtab
+          const parentTabInfo = ensure(args.parent.action, isTabInfo);
           controller.enqueue(
-            await Source.prototype.gatherWindow(args, tabinfo),
+            await Source.prototype.gatherWindow(args, parentTabInfo),
           );
         }
         controller.close();
